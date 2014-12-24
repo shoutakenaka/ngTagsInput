@@ -3,7 +3,7 @@
   "version": "2.1.1",
   "location": "https://github.com/shoutakenaka/ngTagsInput",
   "homepage": "http://mbenford.github.io/ngTagsInput",
-  "main":
+  "main": [
     "build/ng-tags-input.min.js",
     "build/ng-tags-input.min.css"
   ],
