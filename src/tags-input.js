@@ -9,7 +9,8 @@
  * Renders an input box with tag editing support.
  *
  * @param {string} ngModel Assignable angular expression to data-bind to.
- * @param {string=} [identityProperty=text] Property to be rendered as the tag label.
+ * @param {string=} [identityProperty=text] Property to identify the tag.
+ * @param {string=} [displayProperty=text] Property to be rendered as the tag label.
  * @param {string=} [type=text] Type of the input element. Only 'text', 'email' and 'url' are supported values.
  * @param {number=} tabindex Tab order of the control.
  * @param {string=} [placeholder=Add a tag] Placeholder text for the control.
@@ -39,6 +40,7 @@
  * @param {expression} onTagAdded Expression to evaluate upon adding a new tag. The new tag is available as $tag.
  * @param {expression} onInvalidTag Expression to evaluate when a tag is invalid. The invalid tag is available as $tag.
  * @param {expression} onTagRemoved Expression to evaluate upon removing an existing tag. The removed tag is available as $tag.
+ * @param {expression} renderer Function to render tag as display text.
  */
 tagsInput.directive('tagsInput', function($timeout, $document, tagsInputConfig) {
     function TagList(options, events) {
@@ -124,7 +126,8 @@ tagsInput.directive('tagsInput', function($timeout, $document, tagsInputConfig) 
             tags: '=ngModel',
             onTagAdded: '&',
             onInvalidTag: '&',
-            onTagRemoved: '&'
+            onTagRemoved: '&',
+            renderer: '&'
         },
         replace: false,
         transclude: true,
@@ -152,6 +155,7 @@ tagsInput.directive('tagsInput', function($timeout, $document, tagsInputConfig) 
                 minTags: [Number, 0],
                 maxTags: [Number, MAX_SAFE_INTEGER],
                 identityProperty: [String, 'text'],
+                displayProperty: [String, 'text'],
                 allowLeftoverText: [Boolean, false],
                 addFromAutocompleteOnly: [Boolean, false],
                 spellcheck: [Boolean, true]
@@ -203,7 +207,14 @@ tagsInput.directive('tagsInput', function($timeout, $document, tagsInputConfig) 
             scope.newTag = { text: '', invalid: null };
 
             scope.getDisplayText = function(tag) {
-                return safeToString(tag[options.identityProperty]);
+                var value;
+                if (attrs.renderer) {
+                    value = scope.renderer()(tag, options);
+                }
+                else {
+                    value = tag[options.displayProperty];
+                }
+                return safeToString(value);
             };
 
             scope.track = function(tag) {

@@ -1140,9 +1140,9 @@ describe('tags-input directive', function() {
         it('renders the correct number of tags', function() {
             // Arrange
             $scope.tags = [
-                { id: 1, label: 'Tag1' },
-                { id: 2, label: 'Tag2' },
-                { id: 3, label: 'Tag3' },
+                { id: 1, label: 'Tag1', text: 'Text1' },
+                { id: 2, label: 'Tag2', text: 'Text2' },
+                { id: 3, label: 'Tag3', text: 'Text3' },
             ];
 
             // Act
@@ -1150,12 +1150,12 @@ describe('tags-input directive', function() {
 
             // Assert
             expect(getTags().length).toBe(3);
-            expect(getTagText(0)).toBe('Tag1');
-            expect(getTagText(1)).toBe('Tag2');
-            expect(getTagText(2)).toBe('Tag3');
+            expect(getTagText(0)).toBe('Text1');
+            expect(getTagText(1)).toBe('Text2');
+            expect(getTagText(2)).toBe('Text3');
         });
 
-        it('updates the model', function() {
+        it('updates the model with identityProperty', function() {
             // Arrange
             compile('identity-property="label"');
 
@@ -1184,6 +1184,132 @@ describe('tags-input directive', function() {
                 { label: 'Item1' },
                 { label: 'Item2' },
                 { label: 'Item3' }
+            ]);
+        });
+
+    });
+
+    describe('display-property option', function() {
+        it('initializes the option to "text"', function() {
+            // Arrange/Act
+            compile();
+
+            // Assert
+            expect(isolateScope.options.displayProperty).toBe('text');
+        });
+
+        it('renders tags with "label" property', function() {
+            // Arrange
+            $scope.tags = [
+                { id: 1, label: 'Tag1', text: 'Text1' },
+                { id: 2, label: 'Tag2', text: 'Text2' },
+                { id: 3, label: 'Tag3', text: 'Text3' },
+            ];
+
+            // Act
+            compile('display-property="label"');
+
+            // Assert
+            expect(getTags().length).toBe(3);
+            expect(getTagText(0)).toBe('Tag1');
+            expect(getTagText(1)).toBe('Tag2');
+            expect(getTagText(2)).toBe('Tag3');
+        });
+
+        it('updates the model with identityProperty', function() {
+            // Arrange
+            compile('display-property="label"');
+
+            // Act
+            newTag('Tag1');
+            newTag('Tag2');
+            newTag('Tag3');
+
+            // Assert
+            expect($scope.tags).toEqual([
+                { text: 'Tag1' },
+                { text: 'Tag2' },
+                { text: 'Tag3' }
+            ]);
+        });
+
+        it('converts an array of strings into an array of objects', function() {
+            // Arrange
+            $scope.tags = ['Item1', 'Item2', 'Item3'];
+
+            // Act
+            compile('display-property="label"');
+
+            // Assert
+            expect($scope.tags).toEqual([
+                { text: 'Item1' },
+                { text: 'Item2' },
+                { text: 'Item3' }
+            ]);
+        });
+
+    });
+
+    describe('renderer option', function() {
+        it('renders the correct number of tags', function() {
+            // Arrange
+            $scope.tags = [
+                { id: 1, label: 'Tag1', text: 'Text1' },
+                { id: 2, label: 'Tag2', text: 'Text2' },
+                { id: 3, label: 'Tag3', text: 'Text3' },
+            ];
+
+            $scope.render = function(tag, options) {
+                return tag.label + ' ' + tag.text;
+            };
+
+            // Act
+            compile('renderer="render"');
+
+            // Assert
+            expect(getTags().length).toBe(3);
+            expect(getTagText(0)).toBe('Tag1 Text1');
+            expect(getTagText(1)).toBe('Tag2 Text2');
+            expect(getTagText(2)).toBe('Tag3 Text3');
+        });
+
+        it('updates the model with identityProperty', function() {
+            // Arrange
+            $scope.render = function(tag, options) {
+                return tag.label + ' ' + tag.text;
+            };
+
+            // Act
+            compile('renderer="render"');
+
+            // Act
+            newTag('Tag1');
+            newTag('Tag2');
+            newTag('Tag3');
+
+            // Assert
+            expect($scope.tags).toEqual([
+                { text: 'Tag1' },
+                { text: 'Tag2' },
+                { text: 'Tag3' }
+            ]);
+        });
+
+        it('converts an array of strings into an array of objects', function() {
+            // Arrange
+            $scope.tags = ['Item1', 'Item2', 'Item3'];
+            $scope.render = function(tag, options) {
+                return tag.label + ' ' + tag.text;
+            };
+
+            // Act
+            compile('renderer="render"');
+
+            // Assert
+            expect($scope.tags).toEqual([
+                { text: 'Item1' },
+                { text: 'Item2' },
+                { text: 'Item3' }
             ]);
         });
 
