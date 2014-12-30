@@ -1,11 +1,11 @@
 /*!
- * ngTagsInput v2.1.3
+ * ngTagsInput v2.1.5
  * http://mbenford.github.io/ngTagsInput
  *
  * Copyright (c) 2013-2014 Michael Benford
  * License: MIT
  *
- * Generated at 2014-12-26 10:47:30 +0900
+ * Generated at 2014-12-30 11:37:52 +0900
  */
 (function() {
 'use strict';
@@ -101,6 +101,7 @@ var tagsInput = angular.module('ngTagsInput', []);
  * Renders an input box with tag editing support.
  *
  * @param {string} ngModel Assignable angular expression to data-bind to.
+ * @param {string=} [identityProperty=text] Property to identify the tag.
  * @param {string=} [displayProperty=text] Property to be rendered as the tag label.
  * @param {string=} [type=text] Type of the input element. Only 'text', 'email' and 'url' are supported values.
  * @param {number=} tabindex Tab order of the control.
@@ -131,17 +132,18 @@ var tagsInput = angular.module('ngTagsInput', []);
  * @param {expression} onTagAdded Expression to evaluate upon adding a new tag. The new tag is available as $tag.
  * @param {expression} onInvalidTag Expression to evaluate when a tag is invalid. The invalid tag is available as $tag.
  * @param {expression} onTagRemoved Expression to evaluate upon removing an existing tag. The removed tag is available as $tag.
+ * @param {expression} renderer Function to render tag as display text.
  */
 tagsInput.directive('tagsInput', ["$timeout","$document","tagsInputConfig", function($timeout, $document, tagsInputConfig) {
     function TagList(options, events) {
         var self = {}, getTagText, setTagText, tagIsValid;
 
         getTagText = function(tag) {
-            return safeToString(tag[options.displayProperty]);
+            return safeToString(tag[options.identityProperty]);
         };
 
         setTagText = function(tag, text) {
-            tag[options.displayProperty] = text;
+            tag[options.identityProperty] = text;
         };
 
         tagIsValid = function(tag) {
@@ -151,7 +153,7 @@ tagsInput.directive('tagsInput', ["$timeout","$document","tagsInputConfig", func
                    tagText.length >= options.minLength &&
                    tagText.length <= options.maxLength &&
                    options.allowedTagsPattern.test(tagText) &&
-                   !findInObjectArray(self.items, tag, options.displayProperty);
+                   !findInObjectArray(self.items, tag, options.identityProperty);
         };
 
         self.items = [];
@@ -216,7 +218,8 @@ tagsInput.directive('tagsInput', ["$timeout","$document","tagsInputConfig", func
             tags: '=ngModel',
             onTagAdded: '&',
             onInvalidTag: '&',
-            onTagRemoved: '&'
+            onTagRemoved: '&',
+            renderer: '&'
         },
         replace: false,
         transclude: true,
@@ -243,6 +246,7 @@ tagsInput.directive('tagsInput', ["$timeout","$document","tagsInputConfig", func
                 enableEditingLastTag: [Boolean, false],
                 minTags: [Number, 0],
                 maxTags: [Number, MAX_SAFE_INTEGER],
+                identityProperty: [String, 'text'],
                 displayProperty: [String, 'text'],
                 allowLeftoverText: [Boolean, false],
                 addFromAutocompleteOnly: [Boolean, false],
@@ -295,15 +299,22 @@ tagsInput.directive('tagsInput', ["$timeout","$document","tagsInputConfig", func
             scope.newTag = { text: '', invalid: null };
 
             scope.getDisplayText = function(tag) {
-                return safeToString(tag[options.displayProperty]);
+                var value;
+                if (attrs.renderer) {
+                    value = scope.renderer()(tag, options);
+                }
+                else {
+                    value = tag[options.displayProperty];
+                }
+                return safeToString(value);
             };
 
             scope.track = function(tag) {
-                return tag[options.displayProperty];
+                return tag[options.identityProperty];
             };
 
             scope.$watch('tags', function(value) {
-                scope.tags = makeObjectArray(value, options.displayProperty);
+                scope.tags = makeObjectArray(value, options.identityProperty);
                 tagList.items = scope.tags;
             });
 
@@ -409,7 +420,7 @@ tagsInput.directive('tagsInput', ["$timeout","$document","tagsInputConfig", func
                     else if (shouldRemove) {
                         var tag = tagList.removeLast();
                         if (tag && options.enableEditingLastTag) {
-                            scope.newTag.text = tag[options.displayProperty];
+                            scope.newTag.text = tag[options.identityProperty];
                         }
 
                         event.preventDefault();
@@ -466,7 +477,7 @@ tagsInput.directive('autoComplete', ["$document","$timeout","$sce","$q","tagsInp
 
         getDifference = function(array1, array2) {
             return array1.filter(function(item) {
-                return !findInObjectArray(array2, item, options.tagsInput.displayProperty);
+                return !findInObjectArray(array2, item, options.tagsInput.identityProperty);
             });
         };
 
@@ -503,7 +514,7 @@ tagsInput.directive('autoComplete', ["$document","$timeout","$sce","$q","tagsInp
                         return;
                     }
 
-                    items = makeObjectArray(items.data || items, options.tagsInput.displayProperty);
+                    items = makeObjectArray(items.data || items, options.tagsInput.identityProperty);
                     items = getDifference(items, tags);
                     self.items = items.slice(0, options.maxResultsToShow);
 
@@ -566,7 +577,7 @@ tagsInput.directive('autoComplete', ["$document","$timeout","$sce","$q","tagsInp
             suggestionList = new SuggestionList(scope.source, options);
 
             getItem = function(item) {
-                return item[options.tagsInput.displayProperty];
+                return item[options.tagsInput.identityProperty];
             };
 
             getDisplayText = function(item) {
