@@ -1,11 +1,11 @@
 /*!
- * ngTagsInput v2.1.5
+ * ngTagsInput v2.1.6
  * http://mbenford.github.io/ngTagsInput
  *
  * Copyright (c) 2013-2014 Michael Benford
  * License: MIT
  *
- * Generated at 2014-12-30 11:37:52 +0900
+ * Generated at 2014-12-30 12:31:30 +0900
  */
 (function() {
 'use strict';
@@ -552,7 +552,10 @@ tagsInput.directive('autoComplete', ["$document","$timeout","$sce","$q","tagsInp
     return {
         restrict: 'E',
         require: '^tagsInput',
-        scope: { source: '&' },
+        scope: {
+            source: '&',
+            renderer: '&'
+        },
         templateUrl: 'ngTagsInput/auto-complete.html',
         link: function(scope, element, attrs, tagsInputCtrl) {
             var hotkeys = [KEYS.enter, KEYS.tab, KEYS.escape, KEYS.up, KEYS.down],
@@ -577,7 +580,14 @@ tagsInput.directive('autoComplete', ["$document","$timeout","$sce","$q","tagsInp
             suggestionList = new SuggestionList(scope.source, options);
 
             getItem = function(item) {
-                return item[options.tagsInput.identityProperty];
+                var value;
+                if (attrs.renderer) {
+                    value = scope.renderer()(item, options);
+                }
+                else {
+                    value = item[options.tagsInput.displayProperty];
+                }
+                return safeToString(value);
             };
 
             getDisplayText = function(item) {
@@ -618,7 +628,7 @@ tagsInput.directive('autoComplete', ["$document","$timeout","$sce","$q","tagsInp
             };
 
             scope.track = function(item) {
-                return getItem(item);
+                return item[options.tagsInput.identityProperty];
             };
 
             tagsInput
