@@ -109,7 +109,10 @@ tagsInput.directive('autoComplete', function($document, $timeout, $sce, $q, tags
     return {
         restrict: 'E',
         require: '^tagsInput',
-        scope: { source: '&' },
+        scope: {
+            source: '&',
+            renderer: '&'
+        },
         templateUrl: 'ngTagsInput/auto-complete.html',
         link: function(scope, element, attrs, tagsInputCtrl) {
             var hotkeys = [KEYS.enter, KEYS.tab, KEYS.escape, KEYS.up, KEYS.down],
@@ -134,7 +137,14 @@ tagsInput.directive('autoComplete', function($document, $timeout, $sce, $q, tags
             suggestionList = new SuggestionList(scope.source, options);
 
             getItem = function(item) {
-                return item[options.tagsInput.identityProperty];
+                var value;
+                if (attrs.renderer) {
+                    value = scope.renderer()(item, options);
+                }
+                else {
+                    value = item[options.tagsInput.displayProperty];
+                }
+                return safeToString(value);
             };
 
             getDisplayText = function(item) {
@@ -175,7 +185,7 @@ tagsInput.directive('autoComplete', function($document, $timeout, $sce, $q, tags
             };
 
             scope.track = function(item) {
-                return getItem(item);
+                return item[options.tagsInput.identityProperty];
             };
 
             tagsInput

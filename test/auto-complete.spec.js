@@ -20,12 +20,6 @@ describe('autoComplete directive', function() {
         eventHandlers = {};
         $scope.loadItems = jasmine.createSpy().and.returnValue(deferred.promise);
 
-        compile();
-    });
-
-    function compile() {
-        var parent, options;
-
         tagsInput = {
             changeInputValue: jasmine.createSpy(),
             addTag: jasmine.createSpy(),
@@ -37,9 +31,16 @@ describe('autoComplete directive', function() {
             getTags: jasmine.createSpy().and.returnValue([]),
             getCurrentTagText: jasmine.createSpy(),
             getOptions: jasmine.createSpy().and.returnValue({
-                identityProperty: 'text'
+                identityProperty: 'text',
+                displayProperty: 'text'
             })
         };
+
+        compile();
+    });
+
+    function compile() {
+        var parent, options;
 
         parent = $compile('<tags-input ng-model="whatever"></tags-input>')($scope);
         $scope.$digest();
@@ -1063,6 +1064,61 @@ describe('autoComplete directive', function() {
             expect(getSuggestion(1)).not.toHaveClass('selected');
             expect(getSuggestion(2)).not.toHaveClass('selected');
 
+        });
+    });
+
+    describe('renderer option', function() {
+        it('renders display text with displayProperty when renderer option is not specified', function() {
+            // Arrange
+            tagsInput.getOptions = jasmine.createSpy().and.returnValue({
+                identityProperty: 'text',
+                displayProperty: 'label'
+            });
+            compile();
+
+            //Act
+            loadSuggestions([
+                { label: 'l1', text: 'a' },
+                { label: 'l2', text: 'ab' },
+                { label: 'l3', text: 'ba' },
+                { label: 'l4', text: 'aba' },
+                { label: 'l5', text: 'bab' }
+            ], '');
+
+            // Assert
+            expect(getSuggestionText(0)).toBe('l1');
+            expect(getSuggestionText(1)).toBe('l2');
+            expect(getSuggestionText(2)).toBe('l3');
+            expect(getSuggestionText(3)).toBe('l4');
+            expect(getSuggestionText(4)).toBe('l5');
+        });
+
+        it('renders display text with renderer funciton when renderer option is specified', function() {
+            // Arrange
+            tagsInput.getOptions = jasmine.createSpy().and.returnValue({
+                identityProperty: 'text',
+                displayProperty: 'label'
+            });
+            $scope.render = function(tag, options) {
+                return tag.label + ' ' + tag.text;
+            };
+            compile('renderer="render"');
+
+            //Act
+            loadSuggestions([
+                { label: 'l1', text: 'a' },
+                { label: 'l2', text: 'ab' },
+                { label: 'l3', text: 'ba' },
+                { label: 'l4', text: 'aba' },
+                { label: 'l5', text: 'bab' }
+            ], '');
+
+            // Assert
+            expect(getSuggestionText(0)).toBe('l1 a');
+            expect(getSuggestionText(1)).toBe('l2 ab');
+            expect(getSuggestionText(2)).toBe('l3 ba');
+            expect(getSuggestionText(3)).toBe('l4 aba');
+            expect(getSuggestionText(4)).toBe('l5 bab');
         });
     });
 });
