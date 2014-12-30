@@ -34,7 +34,7 @@ tagsInput.directive('autoComplete', function($document, $timeout, $sce, $q, tags
 
         getDifference = function(array1, array2) {
             return array1.filter(function(item) {
-                return !findInObjectArray(array2, item, options.tagsInput.displayProperty);
+                return !findInObjectArray(array2, item, options.tagsInput.identityProperty);
             });
         };
 
@@ -71,7 +71,7 @@ tagsInput.directive('autoComplete', function($document, $timeout, $sce, $q, tags
                         return;
                     }
 
-                    items = makeObjectArray(items.data || items, options.tagsInput.displayProperty);
+                    items = makeObjectArray(items.data || items, options.tagsInput.identityProperty);
                     items = getDifference(items, tags);
                     self.items = items.slice(0, options.maxResultsToShow);
 
@@ -134,7 +134,7 @@ tagsInput.directive('autoComplete', function($document, $timeout, $sce, $q, tags
             suggestionList = new SuggestionList(scope.source, options);
 
             getItem = function(item) {
-                return item[options.tagsInput.displayProperty];
+                return item[options.tagsInput.identityProperty];
             };
 
             getDisplayText = function(item) {

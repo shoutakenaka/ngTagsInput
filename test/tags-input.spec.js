@@ -1128,13 +1128,13 @@ describe('tags-input directive', function() {
         });
     });
 
-    describe('display-property option', function() {
+    describe('identity-property option', function() {
         it('initializes the option to "text"', function() {
             // Arrange/Act
             compile();
 
             // Assert
-            expect(isolateScope.options.displayProperty).toBe('text');
+            expect(isolateScope.options.identityProperty).toBe('text');
         });
 
         it('renders the correct number of tags', function() {
@@ -1146,7 +1146,7 @@ describe('tags-input directive', function() {
             ];
 
             // Act
-            compile('display-property="label"');
+            compile('identity-property="label"');
 
             // Assert
             expect(getTags().length).toBe(3);
@@ -1157,7 +1157,7 @@ describe('tags-input directive', function() {
 
         it('updates the model', function() {
             // Arrange
-            compile('display-property="label"');
+            compile('identity-property="label"');
 
             // Act
             newTag('Tag1');
@@ -1177,7 +1177,7 @@ describe('tags-input directive', function() {
             $scope.tags = ['Item1', 'Item2', 'Item3'];
 
             // Act
-            compile('display-property="label"');
+            compile('identity-property="label"');
 
             // Assert
             expect($scope.tags).toEqual([

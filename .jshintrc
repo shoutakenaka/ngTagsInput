@@ -17,6 +17,7 @@
         "angular": true,
         "module": true,
         "inject": true,
+        "console": true,
         "jQuery": true,
         "document": true,
         "$": true,

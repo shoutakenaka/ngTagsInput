@@ -9,7 +9,7 @@
  * Renders an input box with tag editing support.
  *
  * @param {string} ngModel Assignable angular expression to data-bind to.
- * @param {string=} [displayProperty=text] Property to be rendered as the tag label.
+ * @param {string=} [identityProperty=text] Property to be rendered as the tag label.
  * @param {string=} [type=text] Type of the input element. Only 'text', 'email' and 'url' are supported values.
  * @param {number=} tabindex Tab order of the control.
  * @param {string=} [placeholder=Add a tag] Placeholder text for the control.
@@ -45,11 +45,11 @@ tagsInput.directive('tagsInput', function($timeout, $document, tagsInputConfig) 
         var self = {}, getTagText, setTagText, tagIsValid;
 
         getTagText = function(tag) {
-            return safeToString(tag[options.displayProperty]);
+            return safeToString(tag[options.identityProperty]);
         };
 
         setTagText = function(tag, text) {
-            tag[options.displayProperty] = text;
+            tag[options.identityProperty] = text;
         };
 
         tagIsValid = function(tag) {
@@ -59,7 +59,7 @@ tagsInput.directive('tagsInput', function($timeout, $document, tagsInputConfig) 
                    tagText.length >= options.minLength &&
                    tagText.length <= options.maxLength &&
                    options.allowedTagsPattern.test(tagText) &&
-                   !findInObjectArray(self.items, tag, options.displayProperty);
+                   !findInObjectArray(self.items, tag, options.identityProperty);
         };
 
         self.items = [];
@@ -151,7 +151,7 @@ tagsInput.directive('tagsInput', function($timeout, $document, tagsInputConfig) 
                 enableEditingLastTag: [Boolean, false],
                 minTags: [Number, 0],
                 maxTags: [Number, MAX_SAFE_INTEGER],
-                displayProperty: [String, 'text'],
+                identityProperty: [String, 'text'],
                 allowLeftoverText: [Boolean, false],
                 addFromAutocompleteOnly: [Boolean, false],
                 spellcheck: [Boolean, true]
@@ -203,15 +203,15 @@ tagsInput.directive('tagsInput', function($timeout, $document, tagsInputConfig) 
             scope.newTag = { text: '', invalid: null };
 
             scope.getDisplayText = function(tag) {
-                return safeToString(tag[options.displayProperty]);
+                return safeToString(tag[options.identityProperty]);
             };
 
             scope.track = function(tag) {
-                return tag[options.displayProperty];
+                return tag[options.identityProperty];
             };
 
             scope.$watch('tags', function(value) {
-                scope.tags = makeObjectArray(value, options.displayProperty);
+                scope.tags = makeObjectArray(value, options.identityProperty);
                 tagList.items = scope.tags;
             });
 
@@ -317,7 +317,7 @@ tagsInput.directive('tagsInput', function($timeout, $document, tagsInputConfig) 
                     else if (shouldRemove) {
                         var tag = tagList.removeLast();
                         if (tag && options.enableEditingLastTag) {
-                            scope.newTag.text = tag[options.displayProperty];
+                            scope.newTag.text = tag[options.identityProperty];
                         }
 
                         event.preventDefault();
