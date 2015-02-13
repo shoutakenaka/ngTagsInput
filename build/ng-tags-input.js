@@ -5,7 +5,7 @@
  * Copyright (c) 2013-2015 Michael Benford
  * License: MIT
  *
- * Generated at 2015-02-13 14:38:33 +0900
+ * Generated at 2015-02-13 15:51:19 +0900
  */
 (function() {
 'use strict';
@@ -326,6 +326,15 @@ tagsInput.directive('tagsInput', ["$timeout","$document","tagsInputConfig", func
 
             scope.$watch('tags.length', function() {
                 setElementValidity();
+            });
+
+            // テンプレートのng-focusが効かないため、緊急避難措置。
+            input.on('focus', function(e) {
+                if (scope.hasFocus) {
+                    return;
+                }
+                scope.hasFocus = true;
+                events.trigger('input-focus');
             });
 
             scope.eventHandlers = {
@@ -900,7 +909,7 @@ tagsInput.provider('tagsInputConfig', function() {
 /* HTML templates */
 tagsInput.run(["$templateCache", function($templateCache) {
     $templateCache.put('ngTagsInput/tags-input.html',
-    "<div class=\"host\" tabindex=\"-1\" ng-click=\"eventHandlers.host.click()\" ti-transclude-append=\"\"><div class=\"tags\" ng-class=\"{focused: hasFocus}\"><ul class=\"tag-list\"><li class=\"tag-item\" ng-repeat=\"tag in tagList.items track by track(tag)\" ng-class=\"{ selected: tag == tagList.selected }\"><span ng-bind=\"getDisplayText(tag)\"></span> <a class=\"remove-button\" ng-click=\"tagList.remove($index)\" ng-bind=\"options.removeTagSymbol\"></a></li></ul><input class=\"input\" ng-model=\"newTag.text\" ng-change=\"eventHandlers.input.change(newTag.text)\" ng-keydown=\"eventHandlers.input.keydown($event)\" ng-trim=\"false\" ng-class=\"{'invalid-tag': newTag.invalid}\" ng-hide=\"tagList.items.length >= options.limit\" ti-bind-attrs=\"{type: options.type, placeholder: options.placeholder, tabindex: options.tabindex, spellcheck: options.spellcheck}\" ti-autosize=\"\"></div></div>"
+    "<div class=\"host\" tabindex=\"-1\" ng-click=\"eventHandlers.host.click()\" ti-transclude-append=\"\"><div class=\"tags\"><ul class=\"tag-list\"><li class=\"tag-item\" ng-repeat=\"tag in tagList.items track by track(tag)\" ng-class=\"{ selected: tag == tagList.selected }\"><span ng-bind=\"getDisplayText(tag)\"></span> <a class=\"remove-button\" ng-click=\"tagList.remove($index)\" ng-bind=\"options.removeTagSymbol\"></a></li></ul><input class=\"input\" ng-model=\"newTag.text\" ng-change=\"eventHandlers.input.change(newTag.text)\" ng-keydown=\"eventHandlers.input.keydown($event)\" ng-trim=\"false\" ng-class=\"{'invalid-tag': newTag.invalid}\" ng-hide=\"tagList.items.length >= options.limit\" ti-bind-attrs=\"{type: options.type, placeholder: options.placeholder, tabindex: options.tabindex, spellcheck: options.spellcheck}\" ti-autosize=\"\"></div></div>"
   );
 
   $templateCache.put('ngTagsInput/auto-complete.html',
