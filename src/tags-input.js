@@ -230,6 +230,15 @@ tagsInput.directive('tagsInput', function($timeout, $document, tagsInputConfig) 
                 setElementValidity();
             });
 
+            // テンプレートのng-focusが効かないため、緊急避難措置。
+            input.on('focus', function(e) {
+                if (scope.hasFocus) {
+                    return;
+                }
+                scope.hasFocus = true;
+                events.trigger('input-focus');
+            });
+
             scope.eventHandlers = {
                 input: {
                     change: function(text) {
