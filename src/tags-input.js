@@ -230,6 +230,27 @@ tagsInput.directive('tagsInput', function($timeout, $document, tagsInputConfig) 
                 setElementValidity();
             });
 
+            // テンプレートのng-focusが効かないため、緊急避難措置。
+            input.on('focus', function(e) {
+                if (scope.hasFocus) {
+                    return;
+                }
+                scope.hasFocus = true;
+                events.trigger('input-focus');
+            });
+            input.on('blur', function(e) {
+                $timeout(function() {
+                    var activeElement = $document.prop('activeElement'),
+                        lostFocusToBrowserWindow = activeElement === input[0],
+                        lostFocusToChildElement = element[0].contains(activeElement);
+
+                    if (lostFocusToBrowserWindow || !lostFocusToChildElement) {
+                        scope.hasFocus = false;
+                        events.trigger('input-blur');
+                    }
+                });
+            });
+
             scope.eventHandlers = {
                 input: {
                     change: function(text) {

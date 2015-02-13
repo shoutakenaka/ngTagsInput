@@ -1,11 +1,11 @@
 /*!
- * ngTagsInput v2.1.6
+ * ngTagsInput v2.1.7
  * http://mbenford.github.io/ngTagsInput
  *
- * Copyright (c) 2013-2014 Michael Benford
+ * Copyright (c) 2013-2015 Michael Benford
  * License: MIT
  *
- * Generated at 2014-12-30 12:31:30 +0900
+ * Generated at 2015-02-13 15:59:58 +0900
  */
 (function() {
 'use strict';
@@ -71,13 +71,19 @@ function findInObjectArray(array, obj, key) {
     return item;
 }
 
-function replaceAll(str, substr, newSubstr) {
-    if (!substr) {
+function safeHighlight(str, value) {
+    if (!value) {
         return str;
     }
 
-    var expression = substr.replace(/([.?*+^$[\]\\(){}|-])/g, '\\$1');
-    return str.replace(new RegExp(expression, 'gi'), newSubstr);
+    function escapeRegexChars(str) {
+        return str.replace(/([.?*+^$[\]\\(){}|-])/g, '\\$1');
+    }
+
+    var expression = new RegExp('&[^;]+;|' + escapeRegexChars(value), 'gi');
+    return str.replace(expression, function(match) {
+        return match === value ? '<em>' + value + '</em>' : match;
+    });
 }
 
 function safeToString(value) {
@@ -320,6 +326,27 @@ tagsInput.directive('tagsInput', ["$timeout","$document","tagsInputConfig", func
 
             scope.$watch('tags.length', function() {
                 setElementValidity();
+            });
+
+            // テンプレートのng-focusが効かないため、緊急避難措置。
+            input.on('focus', function(e) {
+                if (scope.hasFocus) {
+                    return;
+                }
+                scope.hasFocus = true;
+                events.trigger('input-focus');
+            });
+            input.on('blur', function(e) {
+                $timeout(function() {
+                    var activeElement = $document.prop('activeElement'),
+                        lostFocusToBrowserWindow = activeElement === input[0],
+                        lostFocusToChildElement = element[0].contains(activeElement);
+
+                    if (lostFocusToBrowserWindow || !lostFocusToChildElement) {
+                        scope.hasFocus = false;
+                        events.trigger('input-blur');
+                    }
+                });
             });
 
             scope.eventHandlers = {
@@ -622,7 +649,7 @@ tagsInput.directive('autoComplete', ["$document","$timeout","$sce","$q","tagsInp
                 var text = getDisplayText(item);
                 text = encodeHTML(text);
                 if (options.highlightMatchedText) {
-                    text = replaceAll(text, encodeHTML(suggestionList.query), '<em>$&</em>');
+                    text = safeHighlight(text, encodeHTML(suggestionList.query));
                 }
                 return $sce.trustAsHtml(text);
             };
@@ -894,7 +921,7 @@ tagsInput.provider('tagsInputConfig', function() {
 /* HTML templates */
 tagsInput.run(["$templateCache", function($templateCache) {
     $templateCache.put('ngTagsInput/tags-input.html',
-    "<div class=\"host\" tabindex=\"-1\" ng-click=\"eventHandlers.host.click()\" ti-transclude-append=\"\"><div class=\"tags\" ng-class=\"{focused: hasFocus}\"><ul class=\"tag-list\"><li class=\"tag-item\" ng-repeat=\"tag in tagList.items track by track(tag)\" ng-class=\"{ selected: tag == tagList.selected }\"><span ng-bind=\"getDisplayText(tag)\"></span> <a class=\"remove-button\" ng-click=\"tagList.remove($index)\" ng-bind=\"options.removeTagSymbol\"></a></li></ul><input class=\"input\" ng-model=\"newTag.text\" ng-change=\"eventHandlers.input.change(newTag.text)\" ng-keydown=\"eventHandlers.input.keydown($event)\" ng-trim=\"false\" ng-class=\"{'invalid-tag': newTag.invalid}\" ng-hide=\"tagList.items.length >= options.limit\" ti-bind-attrs=\"{type: options.type, placeholder: options.placeholder, tabindex: options.tabindex, spellcheck: options.spellcheck}\" ti-autosize=\"\"></div></div>"
+    "<div class=\"host\" tabindex=\"-1\" ng-click=\"eventHandlers.host.click()\" ti-transclude-append=\"\"><div class=\"tags\"><ul class=\"tag-list\"><li class=\"tag-item\" ng-repeat=\"tag in tagList.items track by track(tag)\" ng-class=\"{ selected: tag == tagList.selected }\"><span ng-bind=\"getDisplayText(tag)\"></span> <a class=\"remove-button\" ng-click=\"tagList.remove($index)\" ng-bind=\"options.removeTagSymbol\"></a></li></ul><input class=\"input\" ng-model=\"newTag.text\" ng-change=\"eventHandlers.input.change(newTag.text)\" ng-keydown=\"eventHandlers.input.keydown($event)\" ng-trim=\"false\" ng-class=\"{'invalid-tag': newTag.invalid}\" ng-hide=\"tagList.items.length >= options.limit\" ti-bind-attrs=\"{type: options.type, placeholder: options.placeholder, tabindex: options.tabindex, spellcheck: options.spellcheck}\" ti-autosize=\"\"></div></div>"
   );
 
   $templateCache.put('ngTagsInput/auto-complete.html',
