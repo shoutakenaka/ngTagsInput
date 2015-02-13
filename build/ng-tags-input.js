@@ -5,7 +5,7 @@
  * Copyright (c) 2013-2015 Michael Benford
  * License: MIT
  *
- * Generated at 2015-02-13 15:51:19 +0900
+ * Generated at 2015-02-13 15:55:48 +0900
  */
 (function() {
 'use strict';
@@ -335,6 +335,18 @@ tagsInput.directive('tagsInput', ["$timeout","$document","tagsInputConfig", func
                 }
                 scope.hasFocus = true;
                 events.trigger('input-focus');
+            });
+            input.on('blur', function(e) {
+                $timeout(function() {
+                    var activeElement = $document.prop('activeElement'),
+                        lostFocusToBrowserWindow = activeElement === input[0],
+                        lostFocusToChildElement = element[0].contains(activeElement);
+
+                    if (lostFocusToBrowserWindow || !lostFocusToChildElement) {
+                        scope.hasFocus = false;
+                        events.trigger('input-blur');
+                    }
+                });
             });
 
             scope.eventHandlers = {
