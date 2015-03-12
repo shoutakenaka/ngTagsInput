@@ -3,7 +3,7 @@
     <ul class="tag-list">
       <li class="tag-item"
           ng-repeat="tag in tagList.items track by track(tag)"
-          tooltip="getDisplayText(tag)"
+          tooltip="{{getDisplayText(tag)}}"
           tooltip-placement="bottom"
           tooltip-trigger="mouseenter"
           ng-class="{ selected: tag == tagList.selected }">
