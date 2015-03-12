@@ -54,7 +54,7 @@ describe('tags-input directive', function() {
     }
 
     function getRemoveButton(index) {
-        return getTag(index).find('a').first();
+        return getTag(index).find('button').first();
     }
 
     function getInput() {
