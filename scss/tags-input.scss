@@ -29,6 +29,7 @@ tags-input {
       margin: 2px;
       padding: 0 5px;
       display: inline-block;
+      position: relative;
       float: left;
       font: $tag-font;
       height: $tag-height;
@@ -42,10 +43,13 @@ tags-input {
       }
 
       .remove-button {
-        margin: 0 0 0 5px;
+        position: absolute;
+        right: 4px;
+        top: 4px;
+        margin: 0;
         padding: 0;
         border: none;
-        background: none;
+        background-color: $tags-bgcolor;
         cursor: pointer;
         vertical-align: middle;
         font: $remove-button-font;
