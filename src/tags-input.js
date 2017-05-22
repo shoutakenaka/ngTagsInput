@@ -285,6 +285,7 @@ tagsInput.directive('tagsInput', function($timeout, $document, tagsInputConfig) 
                 },
                 host: {
                     click: function() {
+                        if ($(event.target).is(input[0]) && scope.hasFocus && scope.newTag.text === '') { events.trigger('input-focus'); }
                         input[0].focus();
                     }
                 }

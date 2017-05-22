@@ -1,11 +1,11 @@
 /*!
- * ngTagsInput v3.0.3
+ * ngTagsInput v3.0.4
  * http://mbenford.github.io/ngTagsInput
  *
  * Copyright (c) 2013-2015 Michael Benford
  * License: MIT
  *
- * Generated at 2015-06-03 19:27:56 +0900
+ * Generated at 2017-05-11 17:21:16 +0900
  */
 (function() {
 'use strict';
@@ -383,6 +383,7 @@ tagsInput.directive('tagsInput', ["$timeout","$document","tagsInputConfig", func
                 },
                 host: {
                     click: function() {
+                        if ($(event.target).is(input[0]) && scope.hasFocus && scope.newTag.text === '') { events.trigger('input-focus'); }
                         input[0].focus();
                     }
                 }
